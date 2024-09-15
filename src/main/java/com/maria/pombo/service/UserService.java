@@ -73,7 +73,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
         // Verifica se o like já existe
-        Like existingLike = likeRepository.findByMessageIdAndUserId(messageId, userId);
+        Like existingLike = likeRepository.findByMessageAndUser(message, user);
 
         if (existingLike != null) {
             // Se o like já existe, remove o like e atualiza o total de likes
@@ -100,7 +100,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
         // Verifica se o usuário já reportou a mensagem
-        Report existingReport = reportRepository.findByMessageIdAndUserId(messageId, userId);
+        Report existingReport = reportRepository.findByMessageAndUser(message, user);
 
         if (existingReport != null) {
             // Se o usuário já reportou a mensagem, retorna uma mensagem de erro
