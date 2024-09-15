@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReportRepository extends JpaRepository<Report, String> {
+    Report findByMessageIdAndUserId(String messageId, String userId);
 }
