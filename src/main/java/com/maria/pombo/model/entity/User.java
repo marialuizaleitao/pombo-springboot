@@ -46,4 +46,7 @@ public class User implements Serializable {
         return UserRoles.ADMIN.equals(this.role);
     }
 
+    public void setAdmin(boolean admin) {
+        this.role = admin ? UserRoles.ADMIN : UserRoles.USER;
+    }
 }
