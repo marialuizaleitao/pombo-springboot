@@ -50,6 +50,10 @@ public class UserService {
     }
 
     public void deleteUser(String userId) {
+        Message message = messageRepository.findByUserId(userId);
+        if (message != null) {
+            messageRepository.delete(message);
+        }
         userRepository.deleteById(userId);
     }
 
