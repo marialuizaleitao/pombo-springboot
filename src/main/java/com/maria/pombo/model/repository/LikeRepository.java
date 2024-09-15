@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LikeRepository extends JpaRepository<Like, String> {
+    Like findByMessageIdAndUserId(String messageId, String userId);
 }
