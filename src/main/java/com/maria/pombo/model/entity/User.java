@@ -42,4 +42,8 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private UserRoles role = UserRoles.USER;
 
+    public boolean isAdmin() {
+        return UserRoles.ADMIN.equals(this.role);
+    }
+
 }
