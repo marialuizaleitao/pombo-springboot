@@ -1,0 +1,609 @@
+openapi: 3.0.0
+info:
+  title: Revoada API
+  description: |
+    Backend completo para gerenciamento de usuários e mensagens, com funcionalidades de CRUD, curtidas/descurtidas e denúncia de publicações.
+    
+    ## Links úteis
+    
+    - [Repositório do Projeto](https://github.com/marialuizaleitao/pombo-springboot)
+  version: 1.0.0
+  contact:
+    name: Maria Leitão
+    url: https://marialuizaleitao.github.io/portifolio/
+    email: malufln.99@gmail.com
+servers:
+  - url: http://localhost:8080
+    description: Local server
+
+tags:
+  - name: Pombos
+    description: Endpoints para gerenciar usuários.
+  - name: Pruus
+    description: Endpoints para gerenciar mensagens.
+
+paths:
+  /users:
+    post:
+      tags:
+        - Pombos
+      summary: Cria um usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, cpf]
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                  example: Lewis Hamilton
+                email:
+                  type: string
+                  example: lewis@f1.com
+                cpf:
+                  type: string
+                  example: 12345678910
+                role:
+                  type: string
+                  example: ADMIN
+      responses:
+        201:
+          description: Usuário criado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pombo'
+        400:
+          description: Requisição inválida. Pode ocorrer devido a um e-mail ou CPF inválido, ou quando campos obrigatórios não foram fornecidos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "CPF should be valid."
+        500:
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+
+  /users/{userId}:
+    get:
+      tags:
+        - Pombos
+      summary: Busca um usuário pelo ID
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: ID do usuário
+      responses:
+        200:
+          description: Usuário encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pombo'
+        404:
+          description: Usuário não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User not found."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+
+    put:
+      tags:
+        - Pombos
+      summary: Atualiza um usuário
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: ID do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pombo'
+      responses:
+        200:
+          description: Usuário atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pombo'
+        404:
+          description: Usuário não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User not found."
+        400:
+          description: Requisição inválida.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request body."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+
+    delete:
+      tags:
+        - Pombos
+      summary: Deleta um usuário e seus registros
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: ID do usuário
+      responses:
+        204:
+          description: Usuário deletado com sucesso.
+        404:
+          description: Usuário não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User not found."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+
+  /users/{userId}/toggle-admin:
+    post:
+      tags:
+        - Pombos
+      summary: Alterna a permissão de admin de um usuário
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: ID do usuário
+      responses:
+        200:
+          description: Permissão de admin alternada com sucesso.
+        404:
+          description: Usuário não encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User not found."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+  /messages:
+    post:
+      tags:
+        - Pruus
+      summary: Salva uma nova mensagem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pruu'
+      responses:
+        201:
+          description: Mensagem criada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pruu'
+        400:
+          description: Requisição inválida. Pode ocorrer devido a um texto fora do tamanho exigido ou campos obrigatórios não fornecidos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Text must be between 1 and 300 characters."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+
+  /messages/{messageId}/like:
+    get:
+      tags:
+        - Pruus
+      summary: Lista todas as mensagens
+      parameters:
+        - in: path
+          name: messageId
+          schema:
+            type: string
+          required: true
+          description: ID da mensagem
+      responses:
+        200:
+          description: Mensagens listadas com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pruu'
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+    post:
+      tags:
+        - Pruus
+      summary: Alterna like em uma mensagem
+      parameters:
+        - in: path
+          name: messageId
+          schema:
+            type: string
+          required: true
+          description: ID da mensagem
+      responses:
+        200:
+          description: Like alternado com sucesso.
+        404:
+          description: Mensagem não encontrada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Message not found."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+
+  /messages/{messageId}:
+    get:
+      tags:
+        - Pruus
+      summary: Busca uma mensagem por ID
+      parameters:
+        - in: path
+          name: messageId
+          schema:
+            type: string
+          required: true
+          description: ID da mensagem
+      responses:
+        200:
+          description: Mensagem encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pruu'
+        404:
+          description: Mensagem não encontrada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Message not found."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+    delete:
+      tags:
+        - Pruus
+      summary: Deleta uma mensagem
+      parameters:
+        - in: path
+          name: messageId
+          schema:
+            type: string
+          required: true
+          description: ID da mensagem
+      responses:
+        204:
+          description: Mensagem deletada com sucesso.
+        404:
+          description: Mensagem não encontrada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Message not found."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+    put:
+      tags:
+        - Pruus
+      summary: Bloqueia uma mensagem por um admin
+      parameters:
+        - in: path
+          name: messageId
+          schema:
+            type: string
+          required: true
+          description: ID da mensagem
+      requestBody:
+        description: Razão do bloqueio
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  example: "Conteúdo ofensivo."
+      responses:
+        200:
+          description: Mensagem bloqueada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Message blocked successfully."
+        403:
+          description: Ação não permitida. Somente admins podem bloquear mensagens.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Forbidden. Only admins can block messages."
+        404:
+          description: Mensagem não encontrada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Message not found."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+  /messages/{messageId}/report:
+    post:
+      tags:
+        - Pruus
+      summary: Reporta uma mensagem
+      parameters:
+        - in: path
+          name: messageId
+          schema:
+            type: string
+          required: true
+          description: ID da mensagem
+      responses:
+        200:
+          description: Mensagem reportada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Message blocked successfully"
+        404:
+          description: Mensagem não encontrada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Message not found."
+        500:
+          description: Erro interno do servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+components:
+  schemas:
+    Pombo:
+      type: object
+      required: [id, name, email, cpf]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 18c1b404-70c3-4589-9e67-27170fb8a179
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          example: Lewis Hamilton
+        email:
+          type: string
+          example: lewis@f1.com
+        cpf:
+          type: string
+          example: 12345678910
+        role:
+          type: string
+          enum:
+            - USER
+            - ADMIN
+          default: USER
+          example: ADMIN
+    Pruu:
+      type: object
+      required: [ id, text, user ]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 29a7b203-40b5-3579-8c17-21370fb8g171
+        text:
+          type: string
+          minLength: 1
+          maxLength: 300
+          example: A Scuderia Ferrari tem o prazer de anunciar que Lewis Hamilton se juntará à equipe em 2025, com um contrato multianual.
+        user:
+          $ref: '#/components/schemas/Pombo'
+        totalLikes:
+          type: integer
+          example: 300
+        totalReports:
+          type: integer
+          example: 0
+        createdAt:
+          type: string
+          format: date-time
+          example: 2024-02-01T16:00:28Z
+        isBlocked:
+          type: boolean
+          example: false
+    Like:
+      type: object
+      required: [id, user, message]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 072c8674-4fd7-4fdd-b55b-f6a646ef10b1
+        user:
+          $ref: '#/components/schemas/Pombo'
+        message:
+          $ref: '#/components/schemas/Pruu'
+    Report:
+      type: object
+      required: [id, user, message]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: ff164c3f-fa14-4876-ad25-effa91a5f5db
+        user:
+          $ref: '#/components/schemas/Pombo'
+        message:
+          $ref: '#/components/schemas/Pruu'
