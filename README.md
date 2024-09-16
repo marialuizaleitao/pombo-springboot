@@ -13,4 +13,5 @@
 
 ## Diagrama de Classes
 
-![image](https://github.com/user-attachments/assets/df32d221-92ba-4aa2-aaa0-fda61a116cbe)
+![image](https://github.com/user-attachments/assets/c3003132-a12f-48dd-9d88-bc5d92489d54)
+
