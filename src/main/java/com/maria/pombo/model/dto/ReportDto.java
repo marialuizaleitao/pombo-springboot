@@ -6,4 +6,5 @@ import lombok.Data;
 public class ReportDto {
     private String messageId;
     private Integer reportCount;
+    private String userId;
 }
