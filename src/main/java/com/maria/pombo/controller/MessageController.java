@@ -3,8 +3,10 @@ package com.maria.pombo.controller;
 import com.maria.pombo.exception.MessageNotFoundException;
 import com.maria.pombo.exception.UnauthorizedException;
 import com.maria.pombo.exception.UserNotFoundException;
+import com.maria.pombo.model.dto.ReportDto;
 import com.maria.pombo.model.entity.Message;
 import com.maria.pombo.service.MessageService;
+import com.maria.pombo.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ public class MessageController {
 
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private ReportService reportService;
 
     @PostMapping("/{userId}")
     public ResponseEntity<?> saveMessage(@PathVariable String userId, @RequestBody Message message) {
@@ -81,6 +85,32 @@ public class MessageController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while blocking the message.");
+        }
+    }
+
+    @PostMapping("/{messageId}/report")
+    public ResponseEntity<?> createReport(
+            @RequestHeader("userId") String userId,
+            @PathVariable String messageId) {
+        try {
+            ReportDto reportDto = reportService.createReport(userId, messageId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(reportDto);
+        } catch (UserNotFoundException | MessageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while reporting the message.");
+        }
+    }
+
+    @GetMapping("/{messageId}/reports")
+    public ResponseEntity<?> getReportsByMessage(@PathVariable String messageId) {
+        try {
+            List<ReportDto> reportDtos = reportService.getReportsByMessage(messageId);
+            return ResponseEntity.ok(reportDtos);
+        } catch (MessageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching reports for the message.");
         }
     }
 }
